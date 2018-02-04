@@ -32,6 +32,8 @@ export class AppComponent implements AfterViewInit{
     'id', 'key', 'value', 'createdAt', 'totalCount'
   ];
 
+  loading = false;
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
@@ -47,22 +49,25 @@ parseDate(date: {year: number, month: number, day: number}) {
   return date.year.toString() + '-' + monthStr + '-' + dayStr;
 }
 
-onSubmit() {
-  const request: Request = {
-    startDate: this.parseDate(this.dateRange.beginDate),
-    endDate: this.parseDate(this.dateRange.endDate),
-    minCount: this.minCount,
-    maxCount: this.maxCount
-  };
+  onSubmit() {
+    this.loading = true;
+    const request: Request = {
+      startDate: this.parseDate(this.dateRange.beginDate),
+      endDate: this.parseDate(this.dateRange.endDate),
+      minCount: this.minCount,
+      maxCount: this.maxCount
+    };
 
-  this.backendService.makeRequest(request)
-    .subscribe(
-      (response: Response) => {
+    this.backendService.makeRequest(request)
+      .subscribe(
+        (response: Response) => {
         this.recordsDataSource.data = response.records;
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-}
+        this.loading = false;
+        },
+        (error) => {
+          this.loading = false;
+          console.log(error);
+        }
+      );
+  }
 }
